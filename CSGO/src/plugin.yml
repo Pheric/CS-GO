@@ -3,4 +3,4 @@ version: 0
 author: Photon156
 main: com.arcanemc.main.Main
 commands:
-  setrange:
+  getgun:

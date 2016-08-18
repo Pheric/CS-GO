@@ -1,0 +1,18 @@
+guns:
+  AUG:
+    material: STICK
+    accuracyDbl: 1
+    correctXdbl: .55
+    correctYdbl: .3
+    correctZdbl: .45
+    speedDbl: 4
+    SaccuracyDbl: 4
+    ScorrectXdbl: 0
+    ScorrectYdbl: 0
+    ScorrectZdbl: 0
+    SspeedDbl: 7
+    RaccuracyDbl: .5
+    RcorrectXdbl: 0
+    RcorrectYdbl: 0
+    RcorrectZdbl: 0
+    RspeedDbl: 3
