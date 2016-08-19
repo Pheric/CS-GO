@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -35,32 +36,41 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 		sneaking=new HashSet<Player>();
 		running=new HashSet<Player>();
 		ammo=new HashMap<Player,Map<String,Integer>>();
+		pumpkin=new ItemStack(Material.PUMPKIN);
+		ItemMeta meta=pumpkin.getItemMeta();
+		meta.setDisplayName(ChatColor.DARK_PURPLE+"Eye Protection");
+		pumpkin.setItemMeta(meta);
 	}
 	Player target;
 	Set<String> guns;
 	Set<Player> sneaking,running;
 	public Map<Player,Map<String,Integer>> ammo;
+	ItemStack pumpkin;
 	@EventHandler
 	public void RC(PlayerInteractEvent event){
-		if(event.getPlayer()!=null){
+		if(event.getPlayer()!=null&&event.getItem()!=null&&event.getItem().getItemMeta()!=null){
 			target=event.getPlayer();
-			if(event.getAction()==Action.RIGHT_CLICK_AIR||event.getAction()==Action.RIGHT_CLICK_BLOCK||event.getAction()==Action.PHYSICAL&&event.getItem()!=null){ //TODO: Ingame check?
+			if(event.getItem().getItemMeta().getDisplayName().contains("RELOADING")){
+				event.setCancelled(true);
+				return;
+			}
+			if(event.getAction()==Action.RIGHT_CLICK_AIR||event.getAction()==Action.RIGHT_CLICK_BLOCK||event.getAction()==Action.PHYSICAL){ //TODO: Ingame check?
 				if(!sneaking.contains(target)&&!running.contains(target)){
 					for(String name:guns){
-						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
+						if(event.getItem().getItemMeta().getLore().get(0).contains(name)){
 							fire(name,"",event.getItem(),event.getPlayer());
 						}
 					}
 				}else if(sneaking.contains(target)){
 					for(String name:guns){
-						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
+						if(event.getItem().getItemMeta().getLore().get(0).contains(name)){
 							fire(name,"S",event.getItem(),event.getPlayer());
 							break;
 						}
 					}
 				}else{
 					for(String name:guns){
-						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
+						if(event.getItem().getItemMeta().getLore().get(0).contains(name)){
 							fire(name,"R",event.getItem(),event.getPlayer());
 							break;
 						}
@@ -68,7 +78,7 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 				}
 			}else if(event.getAction()==Action.LEFT_CLICK_AIR||event.getAction()==Action.LEFT_CLICK_BLOCK&&event.getItem()!=null){
 				for(String name:guns){
-					if(event.getItem()!=null&&event.getItem().getItemMeta()!=null&&event.getItem().getItemMeta().getDisplayName().contains(name)){ //TODO: Maybe add in another if statement
+					if(event.getItem()!=null&&event.getItem().getItemMeta()!=null&&event.getItem().getItemMeta().getLore().get(0).contains(name)){ //TODO: Maybe add in another if statement
 						target.sendMessage(ChatColor.translateAlternateColorCodes('&',Main.prefix+"Reloading your "+Main.getConfig().getString("guns."+name+".displayName")));
 						ItemMeta meta=event.getItem().getItemMeta();
 						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&a&l- - - RELOADING - - -"));
@@ -106,7 +116,7 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 				code="&a";
 			}
 			ItemMeta meta=item.getItemMeta();
-			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',Main.getConfig().getString("guns."+name+".displayName")+" "+code+ammo.get(target).get(name).intValue()+"&7/"+Main.getConfig().getInt("guns."+name+".maxAmmo")));
+			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',code+ammo.get(target).get(name).intValue()+"&7/"+Main.getConfig().getInt("guns."+name+".maxAmmo")));
 			item.setItemMeta(meta);
 			target.updateInventory();
 		}
@@ -117,11 +127,11 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 				ammo.get(target).replace(name,Main.getConfig().getInt("guns."+name+".maxAmmo"));
 				target.sendMessage(ChatColor.translateAlternateColorCodes('&',Main.prefix+"Your "+Main.getConfig().getString("guns."+name+".displayName")+"&7&o has been reloaded!"));
 				ItemMeta meta=item.getItemMeta();
-				meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',Main.getConfig().getString("guns."+name+".displayName")+" &a"+ammo.get(target).get(name).intValue()+"&7/"+Main.getConfig().getInt("guns."+name+".maxAmmo")));
+				meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&a"+ammo.get(target).get(name).intValue()+"&7/"+Main.getConfig().getInt("guns."+name+".maxAmmo")));
 				item.setItemMeta(meta);
 				target.updateInventory();
 			}
-		}.runTaskLater(Main,Main.getConfig().getLong("guns."+name+".reloadTime"));
+		}.runTaskLaterAsynchronously(Main,Main.getConfig().getLong("guns."+name+".reloadTime"));
 	}
 	@EventHandler
 	public void sneaking(PlayerToggleSneakEvent event){
@@ -133,6 +143,8 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 				if(target.getItemInHand().getItemMeta().getDisplayName().contains("SSG 08")||target.getItemInHand().getItemMeta().getDisplayName().contains("AWP")){ //Sniper
 					target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,2000,20,false,false));
 					target.setWalkSpeed(-.15F); //Credit for number/idea? goes to Gawdzahh
+					target.getInventory().setHelmet(pumpkin);
+					target.updateInventory();
 				}else if(target.getItemInHand().getItemMeta().getDisplayName().contains("SSG553")||target.getItemInHand().getItemMeta().getDisplayName().contains("AUG")){ //Normal
 					target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,2000,5,false,false));
 					target.setWalkSpeed(-.15F);
@@ -142,6 +154,8 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 					target.removePotionEffect(pe.getType());
 				}
 				target.setWalkSpeed(.2F);
+				target.getInventory().remove(pumpkin);
+				target.updateInventory();
 				if(sneaking.contains(target)){
 					sneaking.remove(target); //-.15F .2F
 				}

@@ -1,10 +1,13 @@
 package com.arcanemc.main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,8 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcanemc.listeners.DamageEvent;
 import com.arcanemc.listeners.InteractEvent;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin{
 	@Override
@@ -43,7 +44,10 @@ public class Main extends JavaPlugin{
 					if(args[0].equalsIgnoreCase(name)){
 						ItemStack gun=new ItemStack(Material.getMaterial(this.getConfig().getString("guns."+name+".material")));
 						ItemMeta meta=gun.getItemMeta();
-						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',this.getConfig().getString("guns."+name+".displayName")));
+						List<String>lore=new ArrayList<String>();
+						lore.add(ChatColor.translateAlternateColorCodes('&',this.getConfig().getString("guns."+name+".displayName")));
+						meta.setLore(lore);
+						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&a"+this.getConfig().getInt("guns."+name+".maxAmmo")+"&7/"+this.getConfig().getInt("guns."+name+".maxAmmo")));
 						gun.setItemMeta(meta);
 						target.getInventory().addItem(gun);
 						if(ie.ammo.get(target)==null||!ie.ammo.get(target).containsKey(name)){
