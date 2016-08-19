@@ -1,7 +1,10 @@
 package com.arcanemc.main;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,10 +21,16 @@ public class Main extends JavaPlugin{
 	@Override
 	public void onEnable(){
 		this.saveDefaultConfig();
-		new InteractEvent(this);
+		ie=new InteractEvent(this);
 		guns=(Set<String>)this.getConfig().getConfigurationSection("guns").getKeys(false);
 	}
+	@Override
+	public void onDisable(){
+		cleanUp();
+	}
 	Player target;
+	public String prefix="&8[&3&lCS:GO&8] &7&o";
+	InteractEvent ie;
 	Set<String> guns;
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String lbl, String[] args) {
@@ -32,14 +41,30 @@ public class Main extends JavaPlugin{
 					if(args[0].equalsIgnoreCase(name)){
 						ItemStack gun=new ItemStack(Material.getMaterial(this.getConfig().getString("guns."+name+".material")));
 						ItemMeta meta=gun.getItemMeta();
-						meta.setDisplayName(ChatColor.RED+name);
+						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',this.getConfig().getString("guns."+name+".displayName")));
 						gun.setItemMeta(meta);
 						target.getInventory().addItem(gun);
+						if(ie.ammo.get(target)==null||!ie.ammo.get(target).containsKey(name)){
+							Map<String,Integer> gunInfo=new HashMap<String,Integer>();
+							gunInfo.put(name,this.getConfig().getInt("guns."+name+".maxAmmo"));
+							ie.ammo.put(target,gunInfo);
+							System.out.println("Added gun");
+						}
 						break;
 					}
 				}
 			}
 		}
 		return true;
+	}
+	public void cleanUp(){
+		//TODO: if(notingame)return;
+		/**--TEMPORARY SOLUTION--*/
+		for(Player player:Bukkit.getServer().getOnlinePlayers()){
+			if(ie.ammo.containsKey(player)){
+				player.getInventory().clear();
+				player.updateInventory();
+			}
+		}
 	}
 }

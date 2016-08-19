@@ -1,6 +1,9 @@
 guns:
   AUG:
     material: STICK
+    reloadTime: 80
+    maxAmmo: 300
+    displayName: "&cAUG"
     accuracyDbl: 1
     correctXdbl: .55
     correctYdbl: .3
