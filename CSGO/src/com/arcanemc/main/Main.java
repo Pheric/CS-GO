@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.arcanemc.listeners.DamageEvent;
 import com.arcanemc.listeners.InteractEvent;
 
 import net.md_5.bungee.api.ChatColor;
@@ -22,6 +23,7 @@ public class Main extends JavaPlugin{
 	public void onEnable(){
 		this.saveDefaultConfig();
 		ie=new InteractEvent(this);
+		new DamageEvent(this);
 		guns=(Set<String>)this.getConfig().getConfigurationSection("guns").getKeys(false);
 	}
 	@Override

@@ -48,27 +48,27 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 				if(!sneaking.contains(target)&&!running.contains(target)){
 					for(String name:guns){
 						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
-							fire(name,"",event.getItem());
+							fire(name,"",event.getItem(),event.getPlayer());
 						}
 					}
 				}else if(sneaking.contains(target)){
 					for(String name:guns){
 						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
-							fire(name,"S",event.getItem());
+							fire(name,"S",event.getItem(),event.getPlayer());
 							break;
 						}
 					}
 				}else{
 					for(String name:guns){
 						if(event.getItem().getItemMeta().getDisplayName().contains(name)){
-							fire(name,"R",event.getItem());
+							fire(name,"R",event.getItem(),event.getPlayer());
 							break;
 						}
 					}
 				}
 			}else if(event.getAction()==Action.LEFT_CLICK_AIR||event.getAction()==Action.LEFT_CLICK_BLOCK&&event.getItem()!=null){
 				for(String name:guns){
-					if(event.getItem().getItemMeta().getDisplayName().contains(name)){
+					if(event.getItem()!=null&&event.getItem().getItemMeta()!=null&&event.getItem().getItemMeta().getDisplayName().contains(name)){ //TODO: Maybe add in another if statement
 						target.sendMessage(ChatColor.translateAlternateColorCodes('&',Main.prefix+"Reloading your "+Main.getConfig().getString("guns."+name+".displayName")));
 						ItemMeta meta=event.getItem().getItemMeta();
 						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&a&l- - - RELOADING - - -"));
@@ -81,7 +81,7 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 			}
 		}
 	}
-	private void fire(String name,String add,ItemStack item){ /** @param add: Adds prefix to the config variable; can be R, S, or empty. */
+	private void fire(String name,String add,ItemStack item,Player target){ /** @param add: Adds prefix to the config variable; can be R, S, or empty. */
 		if(ammo.get(target).get(name).intValue()>0){
 			double rX=Math.random()/Main.getConfig().getDouble("guns."+name+"."+add+"accuracyDbl"); //Gets a random number between the min and max that you put in the command 
 			double rY=Math.random()/Main.getConfig().getDouble("guns."+name+"."+add+"accuracyDbl"); // "                                                                       
@@ -93,7 +93,7 @@ public class InteractEvent implements Listener{ //Min+(int)(Math.random()*((Max-
 			Snowball bullet=target.getWorld().spawn(target.getEyeLocation().add(0,-.5,0),Snowball.class); // Put a snowball in the player's head                                      
 			bullet.setVelocity((target.getEyeLocation().getDirection().multiply(spd)).add(new Vector(rX-cX,rY-cY,rZ-cZ))); // Speed up the bullet 4x                     
 			bullet.setShooter(target); //Makes sure the snowball passes through the person that shot it | -.55 -.3 -.45
-			bullet.setMetadata(name+","+target.getUniqueId(),new FixedMetadataValue(null,null));
+			bullet.setMetadata("bulletData",new FixedMetadataValue(Main,name+","+target.getName()));
 			ammo.get(target).replace(name,ammo.get(target).get(name).intValue()-1);
 			String code="&a";
 			if (ammo.get(target).get(name).intValue()<(Main.getConfig().getInt("guns."+name+".maxAmmo")*.25)){

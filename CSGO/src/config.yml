@@ -4,6 +4,7 @@ guns:
     reloadTime: 80
     maxAmmo: 300
     displayName: "&cAUG"
+    damage: 1
     accuracyDbl: 1
     correctXdbl: .55
     correctYdbl: .3
