@@ -18,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arcanemc.listeners.DamageEvent;
 import com.arcanemc.listeners.InteractEvent;
+import com.arcanemc.other.gun;
 
 public class Main extends JavaPlugin{
 	@Override
@@ -46,16 +47,30 @@ public class Main extends JavaPlugin{
 						ItemMeta meta=gun.getItemMeta();
 						List<String>lore=new ArrayList<String>();
 						lore.add(ChatColor.translateAlternateColorCodes('&',this.getConfig().getString("guns."+name+".displayName")));
+						lore.add(ChatColor.BLACK+target.getName());
 						meta.setLore(lore);
 						meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',"&a"+this.getConfig().getInt("guns."+name+".maxAmmo")+"&7/"+this.getConfig().getInt("guns."+name+".maxAmmo")));
 						gun.setItemMeta(meta);
 						target.getInventory().addItem(gun);
-						if(ie.ammo.get(target)==null||!ie.ammo.get(target).containsKey(name)){
-							Map<String,Integer> gunInfo=new HashMap<String,Integer>();
-							gunInfo.put(name,this.getConfig().getInt("guns."+name+".maxAmmo"));
-							ie.ammo.put(target,gunInfo);
-							System.out.println("Added gun");
+						if(ie.gun.containsKey(gun)){
+							ie.gun.remove(gun);
+							Map<String,gun>a=new HashMap<String,gun>();
+							a.put(name,new gun(this,gun,name,target,null));
+							ie.gun.put(target,a);
+						}else{
+							Map<String,gun>a=new HashMap<String,gun>();
+							a.put(name,new gun(this,gun,name,target,null));
+							ie.gun.put(target,a);
 						}
+//						if(ie.ammo.get(target)==null){
+//							Map<String,Integer> gunInfo=new HashMap<String,Integer>();
+//							gunInfo.put(name,this.getConfig().getInt("guns."+name+".maxAmmo"));
+//							ie.ammo.put(target,gunInfo);
+//							System.out.println("Created "+gun.getItemMeta().getDisplayName());
+//						}else if(!ie.ammo.get(target).containsKey(name)){
+//							ie.ammo.get(target).put(name,this.getConfig().getInt("guns."+name+".maxAmmo"));
+//							System.out.println("Added "+gun.getItemMeta().getDisplayName());
+//						}
 						break;
 					}
 				}
@@ -67,10 +82,8 @@ public class Main extends JavaPlugin{
 		//TODO: if(notingame)return;
 		/**--TEMPORARY SOLUTION--*/
 		for(Player player:Bukkit.getServer().getOnlinePlayers()){
-			if(ie.ammo.containsKey(player)){
-				player.getInventory().clear();
-				player.updateInventory();
-			}
+			player.getInventory().clear();
+			player.updateInventory();
 		}
 	}
 }

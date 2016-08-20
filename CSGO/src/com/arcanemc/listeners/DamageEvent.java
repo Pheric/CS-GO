@@ -13,14 +13,28 @@ public class DamageEvent implements Listener{
 	public DamageEvent(Main Main){
 		this.Main=Main;
 		Main.getServer().getPluginManager().registerEvents(this,Main);
+		ie=new InteractEvent(Main);
 	}
+	InteractEvent ie;
 	Player target;
+	String name;
 	@EventHandler
 	public void damaged(EntityDamageByEntityEvent event){
 		if(event.getDamager()!=null&&event.getEntity()!=null&&event.getEntity() instanceof Player){
 			target=(Player)event.getEntity();
 			if(event.getDamager().getType()==EntityType.SNOWBALL&&event.getDamager().hasMetadata("bulletData")){ //TODO: Check for target to be in-game
-				target.damage(Main.getConfig().getDouble("guns."+event.getDamager().getMetadata("bulletData").get(0).asString().split(",")[0]+".damage"));
+				for(String name:ie.guns){
+					if(event.getItem().getItemMeta().getLore().get(0).contains(name)){
+						this.name=name;
+					}
+				}
+				for(String g:ie.gun.get(target).get())){
+					
+				}
+				if(event.getDamager().getMetadata("bulletData").get(0).equals(obj)){
+					
+				}
+				target.damage();
 			}
 		}
 	}
